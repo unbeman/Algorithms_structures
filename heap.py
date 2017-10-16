@@ -1,8 +1,9 @@
 import sys
 class Heap:
-	def __init__(self, array=[]):
+	def __init__(self, array=[], compare = lambda x,y: x > y):
 		self.__array = array
 		self.__size = len(array) 
+		self.__compare = compare
 		if array:
 			for i in range(self.__size // 2, -1, -1):
 				self.__sift_down(i)
@@ -22,7 +23,7 @@ class Heap:
 
 	def __sift_up(self, i):
 		p = self.__parent(i)
-		while i > 0 and self.__array[p] < self.__array[i]:
+		while i > 0 and self.__compare(self.__array[i],  self.__array[p]):
 			self.__array[p], self.__array[i] = self.__array[i], self.__array[p]
 			i = p
 			p = self.__parent(i)
@@ -31,10 +32,10 @@ class Heap:
 		maxi = i
 		l = self.__left_child(i)
 		size = self.__size
-		if l < size and self.__array[l] > self.__array[maxi]:
+		if l < size and self.__compare(self.__array[l], self.__array[maxi]):
 			maxi = l
 		r = self.__right_child(i)
-		if 	r < size and self.__array[r] > self.__array[maxi]:
+		if 	r < size and self.__compare(self.__array[r], self.__array[maxi]):
 			maxi = r
 		if maxi != i:
 			self.__array[i], self.__array[maxi] = self.__array[maxi], self.__array[i]
@@ -45,7 +46,7 @@ class Heap:
 		self.__size += 1
 		self.__sift_up(self.__size - 1)
 	
-	def ExtractMax(self):
+	def ExtractRoot(self):
 		res = self.__array[0]
 		self.__array[0] = self.__array[self.__size - 1]
 		self.__sift_down(0)
@@ -54,18 +55,18 @@ class Heap:
 		return res
 
 	def Remove(self, i):
-		self.__array[i] = sys.maxsize
+		self.__array[i] = self.__array[0]
 		self.__sift_up(i)
-		self.ExtractMax()
+		self.ExtractRoot()
 
-	def GetMax(self):
+	def GetRoot(self):
 		return self.__array[0]
 
 
 	def ChangePriority(self, i, p):
 		old = self.__array[i]
 		self.__array[i] = p
-		if p > old:
+		if self.__compare(p, old):
 			self.__sift_up(i)
 		else:
 			self.__sift_down(i)		
@@ -82,9 +83,3 @@ class Heap:
 		self.__size = size
 		self.__array.reverse()
 		return self.GetArray()		
-
-a = [1, 2, 3, 4, 5]
-N = Heap(a)
-print(N)
-a = N.HeapSort()
-print(a)
